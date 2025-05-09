@@ -26,8 +26,7 @@ A voice assistant application built with the LiveKit Agents framework, capable o
 3. **Set environment variables:**
    ```sh
    export OPENAI_API_KEY=your_openai_api_key
-   export ELEVENLABS_API_KEY=your_elevenlabs_api_key
-   export MCP_HMAC_SECRET=your_base64_hmac_secret
+   export ELEVEN_API_KEY=your_elevenlabs_api_key
    ```
 4. **Configure MCP servers** in `mcp_servers.yaml` (see below).
 5. **Run tests:**
