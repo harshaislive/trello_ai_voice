@@ -1,0 +1,12 @@
+# The 'tools' field is for documentation only; it does NOT restrict which tools are loaded from the server.
+# All tools provided by the server will be available to the agent unless you implement filtering in the code.
+servers:
+  # - name: github
+  #   url: https://github-mcp.example.com
+  #   tools: [repo_search, issue_create]
+  # - name: flux
+  #   url: https://flux-mcp.example.com
+  #   tools: [deploy, status]
+  - name: promo
+    url: http://localhost:8090/sse
+    tools: [run_promotion] 
