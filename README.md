@@ -28,7 +28,7 @@ A voice assistant application built with the LiveKit Agents framework, capable o
    export OPENAI_API_KEY=your_openai_api_key
    export ELEVEN_API_KEY=your_elevenlabs_api_key
    ```
-4. **Configure MCP servers** in `mcp_servers.yaml` (see below).
+4. **Configure MCP servers** in `mcp_servers.yaml` (e.g. https://cursor.directory/mcp).
 5. **Run tests:**
    ```sh
    make test
