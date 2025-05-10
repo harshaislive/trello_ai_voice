@@ -1,4 +1,5 @@
 .env
 venv/
 .venv/
+kubeconfig
 __pycache__/
