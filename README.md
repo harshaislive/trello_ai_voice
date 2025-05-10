@@ -6,6 +6,8 @@
 
 A conversational AI agent and voice assistant application built with the LiveKit Agents framework, capable of using Model Context Protocol (MCP) tools to interact with external services for SRE and Kubernetes operations.
 
+[▶️ Watch a quick usage demo](https://youtube.com/shorts/3cU2NpGXqRk)
+
 ## Features
 
 - Voice-based interaction with an AI assistant
