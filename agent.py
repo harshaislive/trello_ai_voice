@@ -10,6 +10,7 @@ from livekit.plugins import openai, silero, elevenlabs
 from mcp_client import MCPServerSse
 from mcp_client.agent_tools import MCPToolsIntegration
 import re
+import fnmatch
 
 # Remove load_dotenv() since we use env vars directly
 
@@ -71,6 +72,7 @@ async def entrypoint(ctx: JobContext):
     # Load MCP server configs
     mcp_configs = load_mcp_config()
     mcp_servers = []
+    allowed_tools_map = {}
     for conf in mcp_configs:
         headers = {}
         for k, v in conf.get("headers", {}).items():
@@ -85,6 +87,31 @@ async def entrypoint(ctx: JobContext):
                 name=conf.get("name", conf["url"])
             )
         )
+        if "allowed_tools" in conf:
+            allowed_tools_map[conf.get("name", conf["url"])] = set(conf["allowed_tools"])
+
+    # Patch MCPToolsIntegration to filter tools per server
+    orig_get_function_tools = MCPToolsIntegration.prepare_dynamic_tools
+    async def filtered_prepare_dynamic_tools(mcp_servers, convert_schemas_to_strict=True, auto_connect=True):
+        prepared_tools = []
+        for server in mcp_servers:
+            name = getattr(server, "name", None)
+            allowed = allowed_tools_map.get(name)
+            tools = await server.list_tools()
+            if allowed is not None:
+                allowed_patterns = list(allowed)
+                tools = [t for t in tools if any(fnmatch.fnmatch(t.name, pat) for pat in allowed_patterns)]
+            # Use MCPUtil to convert to FunctionTool and decorate
+            from mcp_client.util import MCPUtil
+            mcp_tools = [MCPUtil.to_function_tool(t, server, convert_schemas_to_strict) for t in tools]
+            for tool_instance in mcp_tools:
+                try:
+                    decorated_tool = MCPToolsIntegration._create_decorated_tool(tool_instance)
+                    prepared_tools.append(decorated_tool)
+                except Exception as e:
+                    logging.getLogger("mcp-agent-tools").error(f"Failed to prepare tool '{tool_instance.name}': {e}")
+        return prepared_tools
+    MCPToolsIntegration.prepare_dynamic_tools = filtered_prepare_dynamic_tools
 
     agent = await MCPToolsIntegration.create_agent_with_tools(
         agent_class=FunctionAgent,

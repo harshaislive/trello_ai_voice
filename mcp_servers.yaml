@@ -1,12 +1,34 @@
 # The 'tools' field is for documentation only; it does NOT restrict which tools are loaded from the server.
 # All tools provided by the server will be available to the agent unless you implement filtering in the code.
 servers:
-  # - name: github
-  #   url: https://github-mcp.example.com
-  #   tools: [repo_search, issue_create]
-  # - name: flux
-  #   url: https://flux-mcp.example.com
-  #   tools: [deploy, status]
-  - name: promo
-    url: http://localhost:8090/sse
-    tools: [run_promotion] 
+  # - name: release-mcp-server
+  #   url: http://localhost:8090/sse
+  #   tools: [run_promotion] 
+  # - name: flux-mcp-server
+  #   url: http://localhost:8091/sse
+  #   tools: [run_promotion] 
+  - name: k8s-mcp-server
+    # MCP official repo https://github.com/Flux159/mcp-server-kubernetes
+    url: http://localhost:8092/sse
+    allowed_tools: [list_*, get_*, scale_*]
+    # list of tools to be used by the agent
+    tools: [  
+  describeCronJobSchema,
+  describePodSchema,
+  describeNodeSchema,
+  describeDeploymentSchema,
+  describeServiceSchema,
+  explainResourceSchema,
+  getEventsSchema,
+  getJobLogsSchema,
+  getLogsSchema,
+  listCronJobsSchema,
+  listContextsSchema,
+  getCurrentContextSchema,
+  setCurrentContextSchema,
+  listDeploymentsSchema,
+  listJobsSchema,
+  listNamespacesSchema,
+  listNodesSchema,
+  listPodsSchema,
+  listServicesSchema,] 

@@ -11,6 +11,10 @@ A voice assistant application built with the LiveKit Agents framework, capable o
 - Text-to-speech (ElevenLabs)
 - Voice activity detection (Silero)
 
+**⚠️ WARNING: Use Caution with Real Kubernetes Clusters**
+
+This agent can create, modify, and delete resources in your Kubernetes cluster. Always review your configuration and tool restrictions before connecting to a production or sensitive environment. Test in a safe environment first.
+
 ## Quick Start
 
 1. **Create and activate a Python virtual environment:**
@@ -28,7 +32,7 @@ A voice assistant application built with the LiveKit Agents framework, capable o
    export OPENAI_API_KEY=your_openai_api_key
    export ELEVEN_API_KEY=your_elevenlabs_api_key
    ```
-4. **Configure MCP servers** in `mcp_servers.yaml` (e.g. https://cursor.directory/mcp).
+4. [**Configure MCP servers**](#mcp-servers) in `mcp_servers.yaml` (see below for details).
 5. **Run tests:**
    ```sh
    make test
@@ -39,6 +43,44 @@ A voice assistant application built with the LiveKit Agents framework, capable o
    ```
 7. 👋 Agent is ready! Say 'hello' to begin.
 
+## Sample Prompts
+
+Try these example prompts with your agent:
+
+- **Show all resources in a namespace:**
+  > show me all resources in default namespace
+
+- **List all pods:**
+  > list pods in dev namespace
+
+- **Describe a pod:**
+  > describe pod my-app-123 in default namespace
+
+- **Get recent events:**
+  > get events from the prod namespace
+
+- **Scale a deployment:**
+  > scale deployment my-app to 3 replicas in dev
+
+- **Get logs from a job:**
+  > get logs from job backup-job in default namespace
+
+- **List all deployments:**
+  > list deployments in prod
+
+## Example: Running a Sample MCP Server
+
+To run a sample MCP server that only allows non-destructive tools, use the following command:
+
+```sh
+ALLOW_ONLY_NON_DESTRUCTIVE_TOOLS=true ENABLE_UNSAFE_SSE_TRANSPORT=1 PORT=8092 npx mcp-server-kubernetes
+```
+
+- `ALLOW_ONLY_NON_DESTRUCTIVE_TOOLS=true` restricts the server to non-destructive tools only.
+- `ENABLE_UNSAFE_SSE_TRANSPORT=1` enables SSE transport for local testing.
+- `PORT=8092` sets the server port.
+
+You can then point your agent's `mcp_servers.yaml` to `http://localhost:8092/sse`.
 
 ## Prerequisites
 
@@ -46,6 +88,12 @@ A voice assistant application built with the LiveKit Agents framework, capable o
 - API keys for OpenAI and ElevenLabs
 - Base64-encoded HMAC secret for MCP authentication
 - At least one MCP server endpoint
+- **npx (Node.js)** is required to run the sample MCP server. If you don't have npx, install Node.js from [nodejs.org](https://nodejs.org/).
+
+  **OS-specific tips:**
+  - **macOS:** You can also install Node.js with Homebrew: `brew install node`
+  - **Linux:** Use your package manager (e.g. `sudo apt install nodejs npm` for Ubuntu/Debian) or download from [nodejs.org](https://nodejs.org/).
+  - **Windows:** Download the installer from [nodejs.org](https://nodejs.org/) and follow the setup instructions.
 
 ## Configuration
 
@@ -55,15 +103,16 @@ Edit `mcp_servers.yaml` in the project root. Example:
 
 ```yaml
 servers:
-  - name: github
-    url: https://github-mcp.example.com
-    tools: [repo_search, issue_create]
-  - name: flux
-    url: https://flux-mcp.example.com
-    tools: [deploy, status]
+  # Example: Allow only non-destructive list and describe tools from a local Kubernetes MCP server
+  - name: k8s-mcp-server
+    url: http://localhost:8092/sse
+    allowed_tools:
+      - list_*           # allow all list tools
+      - describe_*       # allow all describe tools
+      - get_*            # allow all get tools
 ```
 
-- The `tools` field is for documentation only; all tools from the server are available unless you filter them in code.
+- The `allowed_tools` field restricts which tools are available from each server. You can use wildcards (e.g. `list_*`) to match multiple tools. Only the tools matching the patterns will be loaded and available to the agent. If omitted, all tools from the server are available (backward compatible).
 
 ## Usage
 

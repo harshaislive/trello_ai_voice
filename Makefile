@@ -1,4 +1,9 @@
-.PHONY: help run test install uv venv certs-macos certs-linux
+# Makefile for LiveKit Agent with MCP Tools
+#
+# To install Node.js/npx (required for running sample MCP servers):
+#   make nodejs-macos   # for macOS (Homebrew)
+
+.PHONY: help run test install uv venv certs-macos certs-linux nodejs-macos run-mcp-server
 
 help:
 	@echo "Available targets:"
@@ -9,6 +14,8 @@ help:
 	@echo "  test         - Run all tests with pytest (requires env vars if needed)"
 	@echo "  certs-macos  - Fix SSL certificate issues on macOS (run Install Certificates.command)"
 	@echo "  certs-linux  - Fix SSL certificate issues on Linux (install ca-certificates)"
+	@echo "  nodejs-macos  - Install Node.js/npx for macOS (Homebrew)"
+	@echo "  run-mcp-server - Run a sample MCP server (requires npx)"
 
 uv:
 	@echo "Installing uv..."
@@ -48,3 +55,10 @@ test:
 	  fi; \
 	fi
 	pytest 
+
+nodejs-macos:
+	brew install node
+
+# Sample MCP server run (requires npx):
+run-mcp-server:
+	ALLOW_ONLY_NON_DESTRUCTIVE_TOOLS=true ENABLE_UNSAFE_SSE_TRANSPORT=1 PORT=8092 npx mcp-server-kubernetes 
