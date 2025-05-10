@@ -27,6 +27,10 @@ This agent can create, modify, and delete resources in your Kubernetes cluster. 
 > This project is for demo purposes only. It is not production-ready and may change at any time.
 > **Note:** Using this agent may incur costs for API calls (e.g., OpenAI, ElevenLabs, etc.).
 
+<p align="center">
+  <img src="img/terminal.png" alt="VoiceOps terminal" width="540" />
+</p>
+
 
 ## Quick Start
 
