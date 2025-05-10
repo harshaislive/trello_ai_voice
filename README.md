@@ -10,7 +10,7 @@ A conversational AI agent and voice assistant application built with the LiveKit
 - Natural language processing (OpenAI GPT-4o)
 - Text-to-speech (ElevenLabs)
 - Voice activity detection (Silero)
-- **Note:** This agent currently supports only HTTP/SSE MCP servers. NPX/subprocess-based MCP server support may be added in the future.
+- **Note:** This agent currently supports only HTTP/SSE MCP servers. NPX/subprocess-based MCP server support will be added in the future.
 
 **⚠️ WARNING: Use Caution with Real Kubernetes Clusters**
 
