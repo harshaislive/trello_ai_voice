@@ -4,11 +4,6 @@
 
 # VoiceOps: SRE & Kubernetes Agent with MCP Tools
 
-> **⚠️ Status: Experimental & Under Development**
->
-> This project is for demo purposes only. It is not production-ready and may change at any time.
-> **Note:** Using this agent may incur costs for API calls (e.g., OpenAI, ElevenLabs, etc.).
-
 A conversational AI agent and voice assistant application built with the LiveKit Agents framework, capable of using Model Context Protocol (MCP) tools to interact with external services for SRE and Kubernetes operations.
 
 [▶️ Watch a quick usage demo](https://youtube.com/shorts/3cU2NpGXqRk)
@@ -26,6 +21,12 @@ A conversational AI agent and voice assistant application built with the LiveKit
 **⚠️ WARNING: Use Caution with Real Kubernetes Clusters**
 
 This agent can create, modify, and delete resources in your Kubernetes cluster. Always review your configuration and tool restrictions before connecting to a production or sensitive environment. Test in a safe environment first.
+
+> **⚠️ Status: Experimental & Under Development**
+>
+> This project is for demo purposes only. It is not production-ready and may change at any time.
+> **Note:** Using this agent may incur costs for API calls (e.g., OpenAI, ElevenLabs, etc.).
+
 
 ## Quick Start
 
