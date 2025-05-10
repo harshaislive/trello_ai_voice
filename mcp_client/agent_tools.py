@@ -1,4 +1,3 @@
-import asyncio
 import logging
 import json
 import inspect
@@ -9,8 +8,7 @@ from uuid import uuid4
 # Import from the MCP module
 from .util import MCPUtil, FunctionTool
 from .server import MCPServer, MCPServerSse
-from livekit.agents import ChatContext, AgentSession, JobContext, FunctionTool as Tool
-from mcp import CallToolRequest
+from livekit.agents import ChatContext, AgentSession, JobContext
 
 logger = logging.getLogger("mcp-agent-tools")
 
