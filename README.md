@@ -207,3 +207,8 @@ If you encounter errors such as `invalid_function_parameters`, `Invalid schema f
 - [OpenAI](https://openai.com/)
 - [ElevenLabs](https://elevenlabs.io/)
 - [Silero](https://github.com/snakers4/silero-vad)
+- [Kubernetes](https://kubernetes.io/) and the broader CNCF ecosystem
+- [httpx](https://www.python-httpx.org/) and [anyio](https://anyio.readthedocs.io/en/stable/)
+- The Python, Node.js, and open source communities
+- All contributors, testers, and users who help improve this project
+- Inspiration from the [Model Context Protocol (MCP)](https://github.com/modelcontext/protocol) and related projects
