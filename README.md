@@ -1,4 +1,4 @@
-# VoiceOps: SRE & Kubernetes Assistant with MCP Tools
+# VoiceOps: SRE & Kubernetes Agent with MCP Tools
 
 A conversational AI agent and voice assistant application built with the LiveKit Agents framework, capable of using Model Context Protocol (MCP) tools to interact with external services for SRE and Kubernetes operations.
 
