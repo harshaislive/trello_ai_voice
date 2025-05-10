@@ -212,3 +212,4 @@ If you encounter errors such as `invalid_function_parameters`, `Invalid schema f
 - The Python, Node.js, and open source communities
 - All contributors, testers, and users who help improve this project
 - Inspiration from the [Model Context Protocol (MCP)](https://github.com/modelcontext/protocol) and related projects
+- **This project was created in the spirit of Vibe Coding - when human creativity, collaboration, and a  personal passion come together with AI to create something amazing.**
