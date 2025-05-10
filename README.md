@@ -14,8 +14,9 @@ A conversational AI agent and voice assistant application built with the LiveKit
 
 - [Features](#features)
 - [Quick Start](#quick-start)
+- [Example: Running a Sample MCP Server]
 - [Sample Prompts](#sample-prompts)
-- [Example: Running a Sample MCP Server](#example-running-a-sample-mcp-server)
+(#example-running-a-sample-mcp-server)
 - [Prerequisites](#prerequisites)
 - [Configuration](#configuration)
   - [MCP Servers](#mcp-servers)
@@ -73,6 +74,21 @@ This agent can create, modify, and delete resources in your Kubernetes cluster. 
    ```
 7. 👋 Agent is ready! Say 'hello' to begin.
 
+
+## Example: Running a Sample MCP Server
+
+To run a sample MCP server that only allows non-destructive tools, use the following command:
+
+```sh
+ALLOW_ONLY_NON_DESTRUCTIVE_TOOLS=true ENABLE_UNSAFE_SSE_TRANSPORT=1 PORT=8092 npx mcp-server-kubernetes
+```
+
+- `ALLOW_ONLY_NON_DESTRUCTIVE_TOOLS=true` restricts the server to non-destructive tools only.
+- `ENABLE_UNSAFE_SSE_TRANSPORT=1` enables SSE transport for local testing.
+- `PORT=8092` sets the server port.
+
+You can then point your agent's `mcp_servers.yaml` to `http://localhost:8092/sse`.
+
 ## Sample Prompts
 
 Try these example prompts with your agent:
@@ -97,20 +113,6 @@ Try these example prompts with your agent:
 
 - **List all deployments:**
   > list deployments in prod
-
-## Example: Running a Sample MCP Server
-
-To run a sample MCP server that only allows non-destructive tools, use the following command:
-
-```sh
-ALLOW_ONLY_NON_DESTRUCTIVE_TOOLS=true ENABLE_UNSAFE_SSE_TRANSPORT=1 PORT=8092 npx mcp-server-kubernetes
-```
-
-- `ALLOW_ONLY_NON_DESTRUCTIVE_TOOLS=true` restricts the server to non-destructive tools only.
-- `ENABLE_UNSAFE_SSE_TRANSPORT=1` enables SSE transport for local testing.
-- `PORT=8092` sets the server port.
-
-You can then point your agent's `mcp_servers.yaml` to `http://localhost:8092/sse`.
 
 ## Prerequisites
 
