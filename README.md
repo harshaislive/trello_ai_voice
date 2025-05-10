@@ -239,7 +239,7 @@ Let's build something great together!
 
 
 ## Acknowledgements
-- [Building AI Voice Agents for Production (DeepLearning.AI short course)](https://www.deeplearning.ai/short-courses/building-ai-voice-agents-for-production/)
+- DeepLearning.AI short course [Building AI Voice Agents for Production](https://www.deeplearning.ai/short-courses/building-ai-voice-agents-for-production/)
 - [LiveKit](https://livekit.io/)
 - [OpenAI](https://openai.com/)
 - [ElevenLabs](https://elevenlabs.io/)
