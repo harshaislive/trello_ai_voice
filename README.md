@@ -8,6 +8,24 @@ A conversational AI agent and voice assistant application built with the LiveKit
 
 [▶️ Watch a quick usage demo](https://youtube.com/shorts/3cU2NpGXqRk)
 
+---
+
+## Table of Contents
+
+- [Features](#features)
+- [Quick Start](#quick-start)
+- [Sample Prompts](#sample-prompts)
+- [Example: Running a Sample MCP Server](#example-running-a-sample-mcp-server)
+- [Prerequisites](#prerequisites)
+- [Configuration](#configuration)
+  - [MCP Servers](#mcp-servers)
+- [Project Structure](#project-structure)
+- [Testing](#testing)
+- [Troubleshooting](#troubleshooting)
+- [Acknowledgements](#acknowledgements)
+
+---
+
 ## Features
 
 - Voice-based interaction with an AI assistant
@@ -22,13 +40,8 @@ A conversational AI agent and voice assistant application built with the LiveKit
 
 This agent can create, modify, and delete resources in your Kubernetes cluster. Always review your configuration and tool restrictions before connecting to a production or sensitive environment. Test in a safe environment first.
 
-> **⚠️ Status: Experimental & Under Development**
->
-> This project is for demo purposes only. It is not production-ready and may change at any time.
-> **Note:** Using this agent may incur costs for API calls (e.g., OpenAI, ElevenLabs, etc.).
-
 <p align="center">
-  <img src="img/terminal.png" alt="VoiceOps terminal" width="100%" />
+  <img src="img/terminal.png" alt="VoiceOps terminal" width="100%`" />
 </p>
 
 
@@ -177,6 +190,17 @@ make certs-linux
 - Create the venv with a Python that has access to system certificates.
 
 **Do NOT disable SSL verification in production.**
+
+### Schema Validation Errors with LLM or MCP Tools
+
+If you encounter errors such as `invalid_function_parameters`, `Invalid schema for function`, or similar messages from the LLM or MCP server, it usually means your tool schema is not valid or not compatible with the LLM's requirements.
+
+- Double-check your tool's JSON schema in `mcp_servers.yaml` or your MCP server configuration.
+- Ensure all required fields, types, and nested schemas are correct and follow the [JSON Schema specification](https://json-schema.org/).
+- For OpenAI function calling, see [OpenAI Function Calling docs](https://platform.openai.com/docs/guides/function-calling).
+- Refer to the official documentation of the MCP server you are using for the correct schema format and requirements.
+
+**Tip:** Most issues are due to missing `type` fields, incorrect `items` in arrays, or using non-standard fields like `optional` instead of the `required` array.
 
 ## Acknowledgements
 
