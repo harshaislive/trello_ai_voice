@@ -22,6 +22,7 @@ A conversational AI agent and voice assistant application built with the LiveKit
 - [Project Structure](#project-structure)
 - [Testing](#testing)
 - [Troubleshooting](#troubleshooting)
+- [Contributing](#contributing)
 - [Acknowledgements](#acknowledgements)
 
 ---
@@ -118,7 +119,6 @@ Try these example prompts with your agent:
 
 - Python 3.9+
 - API keys for OpenAI and ElevenLabs
-- Base64-encoded HMAC secret for MCP authentication
 - At least one MCP server endpoint
 - **npx (Node.js)** is required to run the sample MCP server. If you don't have npx, install Node.js from [nodejs.org](https://nodejs.org/).
 
@@ -201,6 +201,41 @@ If you encounter errors such as `invalid_function_parameters`, `Invalid schema f
 - Ensure all required fields, types, and nested schemas are correct and follow the [JSON Schema specification](https://json-schema.org/).
 - For OpenAI function calling, see [OpenAI Function Calling docs](https://platform.openai.com/docs/guides/function-calling).
 - Refer to the official documentation of the MCP server you are using for the correct schema format and requirements.
+
+## Contributing
+
+Contributions, feedback, and ideas are welcome!
+
+### How to Contribute
+
+1. **Fork the repository** on GitHub.
+2. **Clone your fork** to your local machine:
+   ```sh
+   git clone https://github.com/your-username/voice-mcp.git
+   cd voice-mcp
+   ```
+3. **Create a new branch** for your feature or fix:
+   ```sh
+   git checkout -b my-feature-branch
+   ```
+4. **Make your changes** and add tests if applicable.
+5. **Commit your changes**:
+   ```sh
+   git add .
+   git commit -m "Describe your change"
+   ```
+6. **Push to your fork**:
+   ```sh
+   git push origin my-feature-branch
+   ```
+7. **Open a Pull Request** on GitHub, describing your changes and why they should be merged.
+8. **Discuss and address feedback** from maintainers or other contributors.
+
+For major changes, please open an issue first to discuss what you would like to change.
+
+Make sure to follow best practices and keep the codebase clean and well-documented.
+
+Let's build something great together!
 
 
 ## Acknowledgements
