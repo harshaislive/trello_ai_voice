@@ -112,3 +112,59 @@ servers:
       - describe_*       # allow all describe tools
       - get_*            # allow all get tools
 ```
+The agent connects to the specified LiveKit room and loads all MCP servers/tools from your config.
+
+## Project Structure
+
+- `agent.py`: Main agent implementation
+- `mcp_servers.yaml`: MCP server configuration
+- `mcp_client/`: MCP integration
+  - `server.py`: Server connection handlers
+  - `agent_tools.py`: MCP tools integration
+  - `util.py`: Utilities
+- `test_agent_config.py`: Unit tests
+- `requirements.txt`: Python dependencies
+
+## Testing
+
+Run unit tests:
+
+```sh
+   make test
+```
+
+## Troubleshooting
+
+### SSL Certificate Errors (CERTIFICATE_VERIFY_FAILED)
+
+If you see an error like:
+
+```
+aiohttp.client_exceptions.ClientConnectorCertificateError: Cannot connect to host api.elevenlabs.io:443 ssl:True [SSLCertVerificationError: (1, '[SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1006)')]
+```
+
+#### macOS:
+- Run the Install Certificates script for your Python version
+
+```sh
+make certs-macos
+```
+
+#### Linux:
+- Ensure `ca-certificates` is installed and updated.
+
+```sh
+make certs-linux
+```
+
+#### Virtual environments:
+- Create the venv with a Python that has access to system certificates.
+
+**Do NOT disable SSL verification in production.**
+
+## Acknowledgements
+
+- [LiveKit](https://livekit.io/)
+- [OpenAI](https://openai.com/)
+- [ElevenLabs](https://elevenlabs.io/)
+- [Silero](https://github.com/snakers4/silero-vad)
