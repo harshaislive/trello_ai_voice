@@ -76,6 +76,7 @@ This agent can create, modify, and delete resources in your Kubernetes cluster. 
 
 
 ## Example: Running a Sample MCP Server
+### [mcp-server-kubernetes official repo](https://github.com/Flux159/mcp-server-kubernetes)
 
 To run a sample MCP server that only allows non-destructive tools, use the following command:
 
