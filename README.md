@@ -15,7 +15,6 @@ A conversational AI agent and voice assistant application built with the LiveKit
 - [Features](#features)
 - [Quick Start](#quick-start)
 - [Example: Running a Sample MCP Server](#example-running-a-sample-mcp-server)
-
 - [Sample Prompts](#sample-prompts)
 - [Prerequisites](#prerequisites)
 - [Configuration](#configuration)
