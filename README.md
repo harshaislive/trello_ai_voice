@@ -200,7 +200,6 @@ If you encounter errors such as `invalid_function_parameters`, `Invalid schema f
 - For OpenAI function calling, see [OpenAI Function Calling docs](https://platform.openai.com/docs/guides/function-calling).
 - Refer to the official documentation of the MCP server you are using for the correct schema format and requirements.
 
-**Tip:** Most issues are due to missing `type` fields, incorrect `items` in arrays, or using non-standard fields like `optional` instead of the `required` array.
 
 ## Acknowledgements
 
