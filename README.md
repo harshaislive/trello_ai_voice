@@ -169,6 +169,36 @@ servers:
 ```
 The agent connects to the specified LiveKit room and loads all MCP servers/tools from your config.
 
+### Authentication
+
+The agent supports HMAC authentication for MCP servers that require it. To configure authentication:
+
+1. Add an `auth` section to your server configuration in `mcp_servers.yaml`:
+
+```yaml
+servers:
+  - name: secure-mcp-server
+    url: https://example.com/sse
+    allowed_tools: [*_*]
+    auth:
+      type: secret_key
+      env_var: MY_SECRET_KEY
+```
+
+2. Set the environment variable specified in `env_var`:
+
+```sh
+export MY_SECRET_KEY=your_secret_key_here
+```
+
+The authentication system:
+- Supports HMAC-SHA256 signatures
+- Automatically handles base64-encoded keys
+- Signs each request with the provided secret key
+- Adds the signature as an `auth` parameter in the request
+
+For MCP servers that use different authentication methods, you can modify the `auth.py` file or extend the authentication middleware.
+
 ## Project Structure
 
 - `agent.py`: Main agent implementation
