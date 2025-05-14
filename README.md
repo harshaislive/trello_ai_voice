@@ -90,6 +90,30 @@ ALLOW_ONLY_NON_DESTRUCTIVE_TOOLS=true ENABLE_UNSAFE_SSE_TRANSPORT=1 PORT=8092 np
 
 You can then point your agent's `mcp_servers.yaml` to `http://localhost:8092/sse`.
 
+### Using Supergateway for stdio-based MCP Servers
+
+[Supergateway](https://github.com/supercorp-ai/supergateway) allows you to expose stdio-based MCP servers over SSE or WebSockets. This is useful for tools like kubectl-ai that only support stdio interfaces e.g. for kubectl-ai MCP agent (https://github.com/GoogleCloudPlatform/kubectl-ai)
+
+To run kubectl-ai as an MCP server via Supergateway:
+
+```sh
+npx -y supergateway --stdio "kubectl-ai --llm-provider=openai --model=gpt-4.1 --mcp-server" --messagePath / --port 8008
+```
+
+Then add this to your `mcp_servers.yaml`:
+
+```yaml
+servers:
+  - name: kubectl-ai-mcp
+    url: http://localhost:8008/sse
+```
+
+Supergateway creates an HTTP server that:
+- Listens for SSE connections at `http://localhost:8008/sse`
+- Forwards messages to the stdio-based MCP server
+- Returns responses back to clients
+
+
 ## Sample Prompts
 
 Try these example prompts with your agent:

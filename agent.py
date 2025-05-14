@@ -7,7 +7,7 @@ from livekit.agents import JobContext, WorkerOptions, cli
 from livekit.agents.llm import ChatChunk
 from livekit.agents.voice import Agent, AgentSession
 from livekit.plugins import openai, silero, elevenlabs
-from mcp_client import MCPServerSse
+from mcp_client import MCPClient, MCPServerSse
 from mcp_client.agent_tools import MCPToolsIntegration
 import re
 import fnmatch
@@ -36,7 +36,7 @@ class FunctionAgent(Agent):
         super().__init__(
             instructions=instructions,
             stt=openai.STT(),
-            llm=openai.LLM(model=llm_model),
+            llm=openai.LLM(model=llm_model, timeout=60),
             tts=elevenlabs.TTS(),
             vad=silero.VAD.load(),
             allow_interruptions=True
@@ -73,22 +73,54 @@ async def entrypoint(ctx: JobContext):
     mcp_configs = load_mcp_config()
     mcp_servers = []
     allowed_tools_map = {}
+    
     for conf in mcp_configs:
         headers = {}
         for k, v in conf.get("headers", {}).items():
             headers[k] = expand_env_vars(v)
-        params = {"url": conf["url"]}
-        if headers:
-            params["headers"] = headers
-        mcp_servers.append(
-            MCPServerSse(
-                params=params,
+        
+        server_name = conf.get("name", "")
+        server_url = conf["url"]
+        
+        # Check if this server has an auth parameter
+        if "auth" in conf:
+            # Get the auth type and corresponding environment variable name
+            auth_type = conf["auth"].get("type", "")
+            env_var_name = conf["auth"].get("env_var", "")
+            
+            # Get the secret key from environment variable
+            secret_key = os.environ.get(env_var_name, "")
+            if secret_key:
+                logging.info(f"Using {env_var_name} for authentication with {server_name}")
+                # Create an MCPClient with authentication
+                client = MCPClient(
+                    url=server_url,
+                    secret_key=secret_key,
+                    headers=headers,
+                    name=server_name
+                )
+                # Use the internal server instance
+                server = client.server
+            else:
+                logging.warning(f"{env_var_name} not set, authentication will not be used for {server_name}")
+                # Create a regular server without authentication
+                server = MCPServerSse(
+                    params={"url": server_url, "headers": headers},
+                    cache_tools_list=True,
+                    name=server_name
+                )
+        else:
+            # For servers without auth configuration, use the regular approach
+            server = MCPServerSse(
+                params={"url": server_url, "headers": headers},
                 cache_tools_list=True,
-                name=conf.get("name", conf["url"])
+                name=server_name
             )
-        )
+        
+        mcp_servers.append(server)
+        
         if "allowed_tools" in conf:
-            allowed_tools_map[conf.get("name", conf["url"])] = set(conf["allowed_tools"])
+            allowed_tools_map[server_name] = set(conf["allowed_tools"])
 
     # Patch MCPToolsIntegration to filter tools per server
     orig_get_function_tools = MCPToolsIntegration.prepare_dynamic_tools

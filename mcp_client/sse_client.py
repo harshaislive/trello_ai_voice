@@ -6,6 +6,7 @@ import json
 
 import anyio
 import httpx
+client = httpx.Client(timeout=60)  # 60 seconds
 from anyio.abc import TaskStatus
 from anyio.streams.memory import MemoryObjectReceiveStream, MemoryObjectSendStream
 from httpx_sse import aconnect_sse

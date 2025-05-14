@@ -1,14 +1,15 @@
 import asyncio
 from contextlib import AbstractAsyncContextManager, AsyncExitStack
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple, Callable
 import logging
 
-# Import from the installed mcp package
 from anyio.streams.memory import MemoryObjectReceiveStream, MemoryObjectSendStream
-import mcp.types
 from mcp.types import CallToolResult, JSONRPCMessage, Tool as MCPTool
 from mcp_client.sse_client import sse_client
 from mcp.client.session import ClientSession
+
+# Type for middleware function
+ToolMiddleware = Callable[[str, Optional[Dict[str, Any]]], Dict[str, Any]]
 
 # Base class for MCP servers
 class MCPServer:
@@ -37,7 +38,7 @@ class MCPServer:
 class _MCPServerWithClientSession(MCPServer):
     """Base class for MCP servers that use a ClientSession to communicate with the server."""
 
-    def __init__(self, cache_tools_list: bool):
+    def __init__(self, cache_tools_list: bool, middleware: Optional[List[ToolMiddleware]] = None):
         """
         Args:
             cache_tools_list: Whether to cache the tools list. If True, the tools list will be
@@ -45,11 +46,15 @@ class _MCPServerWithClientSession(MCPServer):
             fetched from the server on each call to list_tools(). You should set this to True
             if you know the server will not change its tools list, because it can drastically
             improve latency.
+            middleware: A list of middleware functions that will be applied to the arguments
+            before calling a tool. Each middleware should be a function that takes a tool name
+            and arguments and returns modified arguments.
         """
         self.session: Optional[ClientSession] = None
         self.exit_stack: AsyncExitStack = AsyncExitStack()
         self._cleanup_lock: asyncio.Lock = asyncio.Lock()
         self.cache_tools_list = cache_tools_list
+        self.middleware = middleware or []
 
         # The cache is always dirty at startup, so that we fetch tools at least once
         self._cache_dirty = True
@@ -119,8 +124,18 @@ class _MCPServerWithClientSession(MCPServer):
             raise RuntimeError("Server not initialized. Make sure you call connect() first.")
 
         arguments = arguments or {}
+        
+        # Apply middleware to arguments
+        processed_args = arguments
+        for middleware in self.middleware:
+            try:
+                processed_args = await middleware(tool_name, processed_args)
+            except Exception as e:
+                self.logger.error(f"Error in middleware for tool {tool_name}: {e}")
+                raise
+        
         try:
-            return await self.session.call_tool(tool_name, arguments)
+            return await self.session.call_tool(tool_name, processed_args)
         except Exception as e:
             self.logger.error(f"Error calling tool {tool_name}: {e}")
             raise
@@ -147,6 +162,7 @@ class MCPServerSse(_MCPServerWithClientSession):
         params: MCPServerSseParams,
         cache_tools_list: bool = False,
         name: Optional[str] = None,
+        middleware: Optional[List[ToolMiddleware]] = None,
     ):
         """Create a new MCP server based on the HTTP with SSE transport.
 
@@ -155,8 +171,10 @@ class MCPServerSse(_MCPServerWithClientSession):
                    timeout, and SSE read timeout.
             cache_tools_list: Whether to cache the tools list.
             name: A readable name for the server.
+            middleware: A list of middleware functions that will be applied to the arguments
+                        before calling a tool.
         """
-        super().__init__(cache_tools_list)
+        super().__init__(cache_tools_list, middleware)
         self.params = params
         self._name = name or f"SSE Server at {self.params.get('url', 'unknown')}"
 
