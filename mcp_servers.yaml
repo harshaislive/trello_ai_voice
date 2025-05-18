@@ -18,7 +18,7 @@ servers:
   #   tools: [run_promotion] 
   # https://github.com/supercorp-ai/supergateway
   - name: kubectl-ai-mcp-server
-    url: http://localhost:8090/sse
+    url: http://localhost:8008/sse
   # - name: k8s-mcp-server
   #   # MCP official repo https://github.com/Flux159/mcp-server-kubernetes
   #   url: http://localhost:8092/sse
