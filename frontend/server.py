@@ -119,10 +119,14 @@ class CustomHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
         self.send_header('Access-Control-Allow-Origin', '*')
         self.end_headers()
         
+        # Get current port from environment or default
+        current_port = int(os.environ.get('PORT', 8080))
+        
         status_data = {
             "frontend_server": "running",
             "timestamp": datetime.now().isoformat(),
-            "port": 8080,
+            "port": current_port,
+            "environment": "railway" if os.environ.get('RAILWAY_ENVIRONMENT') else "local",
             "endpoints": {
                 "main": "/",
                 "debug": "/debug.html",
@@ -134,8 +138,12 @@ class CustomHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
         print(f"\033[92m[{datetime.now().strftime('%H:%M:%S')}] 📊 STATUS ENDPOINT ACCESSED\033[0m")
         self.wfile.write(json.dumps(status_data, indent=2).encode())
 
-def serve_frontend(port=8080):
+def serve_frontend(port=None):
     """Serve the frontend on the specified port"""
+    
+    # Get port from Railway environment variable or use default
+    if port is None:
+        port = int(os.environ.get('PORT', 8080))
     
     # Change to the frontend directory
     frontend_dir = Path(__file__).parent
@@ -144,14 +152,23 @@ def serve_frontend(port=8080):
     # Create the server
     handler = CustomHTTPRequestHandler
     
-    with socketserver.TCPServer(("", port), handler) as httpd:
+    # Bind to 0.0.0.0 for Railway deployment, localhost for local dev
+    host = "0.0.0.0" if os.environ.get('RAILWAY_ENVIRONMENT') else ""
+    
+    with socketserver.TCPServer((host, port), handler) as httpd:
+        # Determine if running on Railway
+        is_railway = bool(os.environ.get('RAILWAY_ENVIRONMENT'))
+        base_url = f"http://{host if host else 'localhost'}:{port}"
+        
         print("\033[95m" + "=" * 70)
         print("TRELLO VOICE ASSISTANT - FRONTEND SERVER")
         print("=" * 70 + "\033[0m")
-        print(f"\033[92mServer running at: http://localhost:{port}\033[0m")
-        print(f"\033[94mDebug tool: http://localhost:{port}/debug.html\033[0m")
-        print(f"\033[93mTest endpoint: http://localhost:{port}/test\033[0m")
-        print(f"\033[96mStatus endpoint: http://localhost:{port}/api/status\033[0m")
+        print(f"\033[92mServer running at: {base_url}\033[0m")
+        print(f"\033[96mEnvironment: {'Railway' if is_railway else 'Local Development'}\033[0m")
+        print(f"\033[96mPort: {port} {'(Railway assigned)' if is_railway else '(default/local)'}\033[0m")
+        print(f"\033[94mDebug tool: {base_url}/debug.html\033[0m")
+        print(f"\033[93mTest endpoint: {base_url}/test\033[0m")
+        print(f"\033[96mStatus endpoint: {base_url}/api/status\033[0m")
         print(f"\033[90mServing from: {frontend_dir}\033[0m")
         
         print(f"\n\033[97mFeatures:\033[0m")
