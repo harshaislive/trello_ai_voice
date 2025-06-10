@@ -6,6 +6,11 @@ Main entrypoint for the agent. Handles server setup, configuration loading, and 
 
 import os
 import logging
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
+
 from livekit.agents import JobContext, WorkerOptions, cli
 from livekit.agents.voice import AgentSession
 from mcp_client import MCPClient, MCPServerSse
