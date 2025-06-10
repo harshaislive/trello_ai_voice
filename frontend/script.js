@@ -128,20 +128,65 @@ class TrelloVoiceAssistant {
 
     async connectToRoom() {
         try {
-            this.updateStatus('connecting', 'Connecting...');
+            this.updateStatus('connecting', 'Getting token...');
             
-            // This would connect to your LiveKit room
-            // For demo purposes, we'll simulate the connection
-            setTimeout(() => {
-                this.isConnected = true;
-                console.log('Connection established, ready for input');
-                this.updateStatus('ready', 'Ready - Hold mic to speak');
-                this.addMessage('assistant', 'Voice assistant connected! Hold the microphone button and speak, then release to process.');
-            }, 2000);
+            // Fetch token from our new /token endpoint
+            const tokenRes = await fetch('/token');
+            if (!tokenRes.ok) {
+                const error = await tokenRes.text();
+                throw new Error(`Failed to get token: ${error}`);
+            }
+            const { token, url: livekitUrl } = await tokenRes.json();
             
+            this.updateStatus('connecting', 'Connecting to LiveKit...');
+            
+            // Create a new Room instance
+            this.room = new LiveKit.Room({
+                audioCaptureDefaults: {
+                    autoGainControl: true,
+                    echoCancellation: true,
+                    noiseSuppression: true,
+                },
+            });
+
+            // Set up event listeners for the room
+            this.room
+                .on(LiveKit.RoomEvent.Connected, () => {
+                    this.isConnected = true;
+                    console.log('Successfully connected to LiveKit room');
+                    this.updateStatus('ready', 'Ready - Hold mic to speak');
+                    this.addMessage('assistant', 'Voice assistant connected! Hold the microphone button and speak, then release to process.');
+                })
+                .on(LiveKit.RoomEvent.Disconnected, () => {
+                    this.isConnected = false;
+                    console.log('Disconnected from LiveKit room');
+                    this.updateStatus('error', 'Disconnected. Please refresh.');
+                })
+                .on(LiveKit.RoomEvent.TrackSubscribed, (track, publication, participant) => {
+                    if (track.kind === LiveKit.Track.Kind.Audio) {
+                        console.log('Subscribed to remote audio track');
+                        track.attach(); // Audio track will play automatically
+                    }
+                })
+                .on(LiveKit.RoomEvent.TrackUnsubscribed, (track, publication, participant) => {
+                    if (track.kind === LiveKit.Track.Kind.Audio) {
+                        console.log('Unsubscribed from remote audio track');
+                        track.detach();
+                    }
+                });
+
+            // Connect to the room with the token
+            await this.room.connect(livekitUrl, token);
+            
+            // Publish the user's microphone audio
+            await this.room.localParticipant.setMicrophoneEnabled(true);
+            this.localParticipant = this.room.localParticipant;
+            console.log('Microphone published');
+
         } catch (error) {
             console.error('Failed to connect to voice service:', error);
-            this.updateStatus('error', 'Connection Failed');
+            this.updateStatus('error', `Connection Failed: ${error.message}`);
+            this.addMessage('system', `Error: Could not connect to the voice service. Please check the logs and ensure your environment variables are set correctly.`);
         }
     }
 
@@ -339,8 +384,6 @@ class TrelloVoiceAssistant {
         // Processing will happen in recognition.onend
     }
 
-
-
     interruptSpeech() {
         if (this.isSpeaking) {
             console.log('Interrupting current speech');
@@ -358,40 +401,38 @@ class TrelloVoiceAssistant {
         this.showNotification('Speech interrupted', 'info');
     }
 
-                handleVoiceInput(transcript) {
-                console.log('Voice input received:', transcript);
-                
-                // Filter out very short or unclear inputs
-                if (transcript.length < 3) {
-                    console.log('Transcript too short, ignoring');
-                    this.updateStatus('ready', 'Ready - Hold mic to speak');
-                    this.showNotification('Please speak a bit longer', 'info');
-                    return;
-                }
-                
-                console.log('Processing voice input:', transcript);
-                this.addMessage('user', transcript);
-                this.processVoiceInput(transcript);
-                
-                // Reset to ready state after processing
-                setTimeout(() => {
-                    if (!this.isSpeaking) {
-                        this.updateStatus('ready', 'Ready - Hold mic to speak');
-                    }
-                }, 1000);
+    handleVoiceInput(transcript) {
+        console.log('Voice input received:', transcript);
+        
+        // Filter out very short or unclear inputs
+        if (transcript.length < 3) {
+            console.log('Transcript too short, ignoring');
+            this.updateStatus('ready', 'Ready - Hold mic to speak');
+            this.showNotification('Please speak a bit longer', 'info');
+            return;
+        }
+        
+        console.log('Processing voice input:', transcript);
+        this.addMessage('user', transcript);
+        this.processVoiceInput(transcript);
+        
+        // Reset to ready state after processing
+        setTimeout(() => {
+            if (!this.isSpeaking) {
+                this.updateStatus('ready', 'Ready - Hold mic to speak');
             }
+        }, 1000);
+    }
 
-            handleNetworkError() {
-                this.showNotification('Network error - Speech recognition requires internet connection', 'error');
-                this.updateStatus('ready', 'Ready - Network issue detected');
-                
-                // Simulate input for testing
-                setTimeout(() => {
-                    this.showNotification('Try: "show me my boards" or "create new card"', 'info');
-                }, 2000);
-            }
-
-
+    handleNetworkError() {
+        this.showNotification('Network error - Speech recognition requires internet connection', 'error');
+        this.updateStatus('ready', 'Ready - Network issue detected');
+        
+        // Simulate input for testing
+        setTimeout(() => {
+            this.showNotification('Try: "show me my boards" or "create new card"', 'info');
+        }, 2000);
+    }
 
     async startListening() {
         try {

@@ -12,6 +12,8 @@ import json
 from pathlib import Path
 from datetime import datetime
 from urllib.parse import urlparse, parse_qs
+import uuid
+from livekit import api
 
 class CustomHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
     def log_message(self, format, *args):
@@ -47,11 +49,14 @@ class CustomHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
         print(f"   User-Agent: {user_agent[:50]}...\033[0m")
         
         # Handle special endpoints
-        if self.path == '/test':
-            self.send_test_response()
+        if self.path == '/token':
+            self.send_token_response()
             return
         elif self.path == '/api/status':
             self.send_status_response()
+            return
+        elif self.path == '/test':
+            self.send_test_response()
             return
         
         # Default file serving
@@ -95,6 +100,45 @@ class CustomHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
         self.send_response(200)
         self.end_headers()
     
+    def send_token_response(self):
+        """Generate and send a LiveKit access token."""
+        livekit_url = os.environ.get('LIVEKIT_URL')
+        livekit_api_key = os.environ.get('LIVEKIT_API_KEY')
+        livekit_api_secret = os.environ.get('LIVEKIT_API_SECRET')
+
+        if not all([livekit_url, livekit_api_key, livekit_api_secret]):
+            self.send_error(500, "LiveKit server environment variables are not set")
+            print("\033[91mError: Missing LiveKit environment variables (LIVEKIT_URL, LIVEKIT_API_KEY, LIVEKIT_API_SECRET)\033[0m")
+            return
+
+        # Simple unique identity for the user, can be expanded later
+        identity = f"user-{uuid.uuid4()}"
+        
+        # Create a grant for a specific room and identity
+        # The room name should match the one the agent connects to
+        room_name = os.environ.get('LIVEKIT_ROOM', 'trello-voice-agent-room')
+        
+        token = (
+            api.AccessToken(livekit_api_key, livekit_api_secret)
+            .with_identity(identity)
+            .with_name("Frontend User")
+            .with_grant(api.VideoGrant(room=room_name))
+            .to_jwt()
+        )
+        
+        self.send_response(200)
+        self.send_header('Content-type', 'application/json')
+        self.end_headers()
+        
+        response = {
+            "token": token,
+            "url": livekit_url,
+            "identity": identity
+        }
+        
+        print(f"\033[92m[{datetime.now().strftime('%H:%M:%S')}] 🔑 Token generated for identity: {identity}\033[0m")
+        self.wfile.write(json.dumps(response).encode())
+
     def send_test_response(self):
         """Send test response"""
         self.send_response(200)

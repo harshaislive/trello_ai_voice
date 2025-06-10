@@ -6,3 +6,5 @@ mcp==1.7.1
 pytest
 PyYAML
 requests
+python-dotenv
+livekit
