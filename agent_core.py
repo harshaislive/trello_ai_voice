@@ -41,7 +41,7 @@ class FunctionAgent(Agent):
             instructions=instructions,
             stt=openai.STT(),
             llm=llm,
-            tts=elevenlabs.TTS(voice_id="IRHApOXLvnW57QJPQH2P"),
+            tts=elevenlabs.TTS(),
             vad=silero.VAD.load(),
             allow_interruptions=True
         )
